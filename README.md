@@ -250,3 +250,12 @@ DevOps Engineer
 
 
 **Project:** Terraform Provisioners – AWS EC2 Flask Application Deployment
+
+
+
+## GitHub Actions CI/CD Test
+
+This project is automatically deployed using
+GitHub Actions, Terraform, and AWS OIDC.
+
+Workflow execution: Successful!
