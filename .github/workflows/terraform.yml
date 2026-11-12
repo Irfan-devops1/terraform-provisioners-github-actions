@@ -1,0 +1,63 @@
+
+name: Terraform AWS Deployment
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  terraform:
+    name: Deploy Flask Application on AWS
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_REGION: ap-south-1
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials using OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: GitHubActionsTerraform
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Create SSH Key Files
+        run: |
+          printf '%s' "$EC2_SSH_PRIVATE_KEY" > pk-key
+          printf '%s' "$EC2_SSH_PUBLIC_KEY" > pk-key.pub
+          chmod 600 pk-key
+        env:
+          EC2_SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          EC2_SSH_PUBLIC_KEY: ${{ secrets.EC2_SSH_PUBLIC_KEY }}
+
+      - name: Get GitHub Runner Public IP
+        run: |
+          RUNNER_IP=$(curl --fail --silent --show-error https://api.ipify.org)
+          echo "TF_VAR_ssh_cidr=${RUNNER_IP}/32" >> "$GITHUB_ENV"
+
+      - name: Terraform Format
+        run: terraform fmt -check
+
+      - name: Terraform Initialize
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve tfplan

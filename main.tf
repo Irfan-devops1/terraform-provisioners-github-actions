@@ -1,15 +1,30 @@
 provider "aws" {
-  region = "ap-south-1"     # Change to your preferred AWS region
+  region = "ap-south-1" # Change to your preferred AWS region
+}
+
+terraform {
+  backend "s3" {
+    bucket       = "irfan-126478-bucket"
+    key          = "github-actions/terraform.tfstate"
+    region       = "ap-south-1"
+    encrypt      = true
+    use_lockfile = true
+  }
 }
 
 variable "cidr" {
-  default = "10.0.0.0/16"  # Change to your preferred VPC CIDR range
+  default = "10.0.0.0/16" # Change to your preferred VPC CIDR range
 
 }
 
+variable "ssh_cidr" {
+  description = "GitHub Actions runner public IP address in CIDR notation"
+  type        = string
+}
+
 resource "aws_key_pair" "name" {
-  key_name   = "irfan-key"                          # Change to your AWS key pair name
-  public_key = file("${path.module}/pk-key.pub")    # Replace with the path to your own SSH public key file
+  key_name   = "irfan-key"                       # Change to your AWS key pair name
+  public_key = file("${path.module}/pk-key.pub") # Replace with the path to your own SSH public key file
 
 }
 
@@ -25,7 +40,7 @@ resource "aws_vpc" "myvpc" {
 
 resource "aws_subnet" "sub1" {
   vpc_id                  = aws_vpc.myvpc.id
-  cidr_block              = "10.0.1.0/24"        # Change according to your VPC CIDR range
+  cidr_block              = "10.0.1.0/24" # Change according to your VPC CIDR range
   map_public_ip_on_launch = true
   tags = {
     Name = "Public Subnet"
@@ -61,14 +76,14 @@ resource "aws_security_group" "webSg" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]                   # Allow public HTTP access
+    cidr_blocks = ["0.0.0.0/0"] # Allow public HTTP access
   }
   ingress {
-    description = "For SSH"
+    description = "SSH from GitHub Actions runner"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]                  # For better security, replace with your public IP/32
+    cidr_blocks = [var.ssh_cidr] # For better security, replace with your public IP/32
   }
   egress {
     from_port   = 0
@@ -82,8 +97,8 @@ resource "aws_security_group" "webSg" {
 
 }
 resource "aws_instance" "server" {
-  ami                    = "ami-0c7632fb77f35db43"  # Replace with a valid Ubuntu AMI ID for your AWS region
-  instance_type          = "t3.micro"               # Change according to your requirements
+  ami                    = "ami-0c7632fb77f35db43" # Replace with a valid Ubuntu AMI ID for your AWS region
+  instance_type          = "t3.micro"              # Change according to your requirements
   key_name               = aws_key_pair.name.key_name
   vpc_security_group_ids = [aws_security_group.webSg.id]
   subnet_id              = aws_subnet.sub1.id
@@ -94,7 +109,7 @@ resource "aws_instance" "server" {
   connection {
     type        = "ssh"
     user        = "ubuntu"
-    private_key = file("${path.module}/pk-key")     # Replace with the path to your own SSH private key file
+    private_key = file("${path.module}/pk-key") # Replace with the path to your own SSH private key file
     host        = self.public_ip
   }
 
@@ -112,14 +127,14 @@ resource "aws_instance" "server" {
       # Install Python and virtual environment
       "sudo apt install -y python3-pip python3-venv",
 
-       # Create Python virtual environment
+      # Create Python virtual environment
       "cd /home/ubuntu",
       "python3 -m venv venv",
 
       # Install Flask
       "./venv/bin/pip install flask",
 
-         # Start Flask automatically
+      # Start Flask automatically
       "sudo bash -c 'cd /home/ubuntu && nohup ./venv/bin/python app.py > app.log 2>&1 < /dev/null &'"
     ]
   }
