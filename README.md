@@ -1,261 +1,221 @@
-# Terraform Provisioners Project – AWS EC2 Flask Application Deployment
+# Terraform Provisioners with AWS EC2 and GitHub Actions CI/CD
 
-## Project Overview
-
-This project demonstrates how to use Terraform Provisioners to automate AWS infrastructure provisioning and deploy a Python Flask application on an Ubuntu EC2 instance.
-
-In this project, I used:
-- **File Provisioner** to transfer the Flask application from my local machine to EC2.
-- **Remote-Exec Provisioner** to install dependencies and start the Flask application remotely.
-- **SSH Connection** to connect Terraform to the EC2 instance.
+![Terraform](https://img.shields.io/badge/Terraform-IaC-7B42BC?logo=terraform)
+![AWS](https://img.shields.io/badge/AWS-Cloud-FF9900?logo=amazonaws)
+![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-CI%2FCD-2088FF?logo=githubactions)
+![Python](https://img.shields.io/badge/Python-Flask-3776AB?logo=python)
+![Ubuntu](https://img.shields.io/badge/Ubuntu-EC2-E95420?logo=ubuntu)
 
 ## Project Architecture
 
-![Terraform Provisioners Project Architecture](screenshots/project-architecture.png)
+The following diagram illustrates the complete AWS infrastructure provisioning and CI/CD deployment workflow.
 
-## Technologies Used
+![Terraform AWS GitHub Actions CI/CD Architecture](screenshots/Terraform-AWS-GitHubActions-CICD-Architecture.png)
 
-- Terraform
-- AWS EC2
-- AWS VPC
-- AWS Subnet
-- Internet Gateway
-- Route Table
-- Security Group
-- Ubuntu Linux
-- Python
-- Flask
-- SSH
-- Git and GitHub
+## Project Overview
 
----
+Designed and implemented an automated AWS infrastructure deployment using **Terraform, AWS EC2, and GitHub Actions**.
 
-## Project Implementation Workflow
+The project provisions AWS infrastructure using Terraform, configures an EC2 instance through Terraform provisioners, deploys a Python Flask application, and automates infrastructure deployment through GitHub Actions using AWS OIDC authentication.
 
-### Step 1: Project Folder Structure
+Terraform remote state is stored securely in an Amazon S3 backend with state locking enabled.
 
-Organized the project repository with Terraform configuration files, Flask application code, documentation, Git ignore rules, and implementation evidence.
+## Technology Stack
 
-**Project Repository Structure:**
+| Technology | Purpose |
+|---|---|
+| AWS EC2 | Application hosting |
+| AWS VPC | Network infrastructure |
+| AWS Security Groups | Network access control |
+| AWS IAM | Identity and access management |
+| AWS OIDC | Secure GitHub Actions authentication |
+| Amazon S3 | Terraform remote state |
+| Terraform | Infrastructure as Code |
+| Terraform Provisioners | Instance configuration and application deployment |
+| GitHub Actions | CI/CD automation |
+| Python | Application development |
+| Flask | Web application framework |
+| Ubuntu | EC2 operating system |
+| Git & GitHub | Version control |
 
-![Project Folder Structure](screenshots/01-project-structure.png)
+## Key Implementations
 
-### Step 2: Terraform Configuration
+- Provisioned AWS infrastructure using Terraform.
+- Created VPC, subnet, Internet Gateway, route table, and security group.
+- Automated EC2 instance creation using Terraform.
+- Used `file` provisioner to transfer application files to EC2.
+- Used `remote-exec` provisioner to install dependencies and configure the application.
+- Deployed a Flask application automatically when the EC2 instance was provisioned.
+- Configured Amazon S3 as a Terraform remote backend.
+- Enabled S3 state locking to prevent concurrent Terraform operations.
+- Integrated GitHub Actions for automated Terraform deployment.
+- Configured AWS IAM OIDC authentication to avoid storing long-lived AWS access keys in GitHub.
+- Stored SSH key material securely in GitHub repository secrets.
+- Restricted SSH access to the GitHub Actions runner's public IP.
+- Created a separate GitHub Actions workflow for infrastructure destruction.
 
-Configured the AWS provider and infrastructure resources, including VPC, public subnet, Internet Gateway, route table, security group, key pair, and EC2 instance.
+## Project Implementation & Screenshots
 
-**Infrastructure as Code (IaC) Configuration:**
+### 1. Terraform Configuration Validation
 
-![Terraform Configuration](screenshots/02-terraform-configuration.png)
+Validated Terraform configuration using GitHub Actions.
 
-### Step 3: Flask Application
+![Terraform Validation](screenshots/01-terraform-validation.png)
 
-Created a Python Flask application to display a success message when accessed through a web browser.
+### 2. GitHub Actions CI/CD Pipeline
 
-**Application Source Code:**
+Automated infrastructure deployment through GitHub Actions.
 
-![Flask Application](screenshots/03-flask-application.png)
+![GitHub Actions Success](screenshots/02-github-actions-success.png)
 
-### Step 4: Terraform Initialization
+### 3. Terraform Plan
 
-Initialized the Terraform working directory and downloaded the required AWS provider.
+Reviewed infrastructure changes before applying them.
 
-**Command:**
+![Terraform Plan](screenshots/03-terraform-plan.png)
 
-```bash
-terraform init
-```
+### 4. Terraform Apply
 
-**Terraform Initialization Output:**
+Provisioned AWS infrastructure automatically through the CI/CD pipeline.
 
-![Terraform Initialization](screenshots/04-terraform-init.png)
+![Terraform Apply](screenshots/04-terraform-apply.png)
 
-### Step 5: Terraform Validation
+### 5. AWS EC2 Instance
 
-Validated the Terraform configuration to check for syntax and configuration errors.
+Verified successful EC2 instance provisioning in AWS.
 
-**Command:**
+![EC2 Instance](screenshots/05-ec2-instance.png)
 
-```bash
-terraform validate
-```
-
-**Configuration Validation Results:**
-
-![Terraform Validation](screenshots/05-terraform-validate.png)
-
-### Step 6: Terraform Plan
-
-Reviewed the execution plan to understand which AWS resources Terraform would create.
-
-**Command:**
-
-```bash
-terraform plan
-```
-
-**Infrastructure Execution Plan:**
-
-![Terraform Plan](screenshots/06-terraform-plan.png)
-
-### Step 7: Terraform Apply
-
-Applied the Terraform configuration to create AWS infrastructure and deploy the application.
-
-**Command:**
-
-```bash
-terraform apply
-```
-
-**Infrastructure Deployment Results:**
-
-![Terraform Apply](screenshots/07-terraform-apply.png)
-
-### Step 8: AWS EC2 Instance Creation
-
-Verified that the EC2 instance was successfully created in the AWS Management Console.
-
-**AWS EC2 Resource Provisioning:**
-
-![AWS EC2 Instance](screenshots/08-aws-ec2-instance.png)
-
-### Step 9: File Provisioner
-
-Used the Terraform File Provisioner to transfer the local `app.py` file to the EC2 instance.
-
-**Terraform Configuration:**
-
-```hcl
-provisioner "file" {
-  source      = "app.py"
-  destination = "/home/ubuntu/app.py"
-}
-```
-
-**File Provisioner – Transfer Verification:**
-
-![File Provisioner](screenshots/09-ec2-file-transfer.png)
-
-### Step 10: Remote-Exec Provisioner
-
-Used the Remote-Exec Provisioner to execute commands remotely on the EC2 instance.
-
-Tasks performed:
-
-- Updated Ubuntu packages.
-- Installed Python and pip.
-- Created a Python virtual environment.
-- Installed Flask.
-- Started the Flask application.
-
-**Remote-Exec Provisioner – Configuration Execution:**
-
-![Remote-Exec Provisioner](screenshots/10-remote-exec-installation.png)
-
-### Step 11: Flask Application in Browser
-
-Accessed the deployed Flask application using the EC2 instance's public IPv4 address.
-
-**Application URL:**
-
-```text
-http://<EC2-PUBLIC-IP>
-```
-
-**Application Deployment – Browser Verification:**
-
-![Flask Application in Browser](screenshots/11-application-browser.png)
-
-### Step 12: Application Verification
+### 6. Flask Application Deployment
 
 Verified that the Flask application was running successfully on the EC2 instance.
 
-**Command:**
+![Flask Application](screenshots/06-flask-application.png)
 
-```bash
-curl http://localhost
-```
+### 7. Terraform Remote State on S3
 
-**Expected Output:**
+Verified that Terraform remote state was stored in the Amazon S3 bucket.
+
+![S3 Terraform State](screenshots/07-s3-terraform-state.png)
+
+### 8. Infrastructure Destruction
+
+Executed the separate GitHub Actions workflow to destroy the provisioned infrastructure.
+
+![Terraform Destroy](screenshots/08-terraform-destroy.png)
+
+### 9. EC2 Instance Termination
+
+Verified successful termination of the EC2 instance after Terraform destroy.
+
+![EC2 Terminated](screenshots/09-ec2-terminated.png)
+
+## CI/CD Workflow
+
+The deployment pipeline performs the following operations:
+
+1. Checks out the source code.
+2. Authenticates with AWS using GitHub OIDC.
+3. Sets up Terraform.
+4. Retrieves SSH keys from GitHub Secrets.
+5. Detects the GitHub Actions runner's public IP.
+6. Validates Terraform formatting.
+7. Initializes the Terraform working directory.
+8. Validates Terraform configuration.
+9. Generates a Terraform execution plan.
+10. Applies the infrastructure changes.
+11. Deploys the Flask application on EC2.
+
+A separate manually triggered workflow executes `terraform destroy` to remove the infrastructure.
+
+## Security & Best Practices
+
+- Used AWS OIDC federation for GitHub Actions authentication.
+- Avoided hardcoding AWS credentials in source code.
+- Stored sensitive SSH key material in GitHub Secrets.
+- Used an S3 remote backend for centralized Terraform state management.
+- Enabled S3 state locking.
+- Restricted SSH ingress to the GitHub Actions runner IP.
+- Excluded Terraform state files, private keys, and local provider files from Git version control.
+
+## Project Structure
 
 ```text
-Hello, Irfan This Terraform Project is deployed and created Successfully!
+terraform-provisioners-github-actions/
+│
+├── .github/
+│   └── workflows/
+│       ├── terraform.yml
+│       └── terraform-destroy.yml
+│
+├── screenshots/
+│   ├── 01-terraform-validation.png
+│   ├── 02-github-actions-success.png
+│   ├── 03-terraform-plan.png
+│   ├── 04-terraform-apply.png
+│   ├── 05-ec2-instance.png
+│   ├── 06-flask-application.png
+│   ├── 07-s3-terraform-state.png
+│   ├── 08-terraform-destroy.png
+│   └── 09-ec2-terminated.png
+│
+├── .gitignore
+├── .terraform.lock.hcl
+├── app.py
+├── main.tf
+└── README.md
 ```
 
-**Application Runtime Validation:**
+## Deployment
 
-![Application Verification](screenshots/12-application-verification.png)
+### Prerequisites
 
----
+- AWS account
+- Terraform installed
+- Git installed
+- GitHub repository
+- AWS IAM role configured for GitHub OIDC
+- Required GitHub repository secrets configured
 
-## AWS Resources Created
+### Local Deployment
 
-| AWS Resource | Purpose |
-|---|---|
-| VPC | Creates an isolated AWS network |
-| Public Subnet | Hosts the EC2 instance |
-| Internet Gateway | Provides internet connectivity |
-| Route Table | Routes internet traffic |
-| Route Table Association | Associates the route table with the subnet |
-| Security Group | Controls inbound traffic |
-| Key Pair | Enables SSH authentication |
-| EC2 Instance | Hosts the Flask application |
+```bash
+terraform init
+terraform fmt
+terraform validate
+terraform plan
+terraform apply
+```
 
-## Terraform Provisioners Used
-
-### 1. File Provisioner
-Transfers application files from the local machine to the remote EC2 instance.
-
-### 2. Remote-Exec Provisioner
-Executes remote commands over SSH to install dependencies and start the Flask application.
-
-### 3. Connection Block
-Establishes SSH connectivity between Terraform and the EC2 instance.
-
-## Key Learnings
-
-- Provisioning AWS infrastructure using Terraform.
-- Understanding Terraform File Provisioners.
-- Executing remote commands using Remote-Exec Provisioners.
-- Configuring SSH connections to EC2 instances.
-- Deploying Python Flask applications on Ubuntu.
-- Automating application deployment.
-
-## Security Considerations
-
-- Never upload private SSH keys to GitHub.
-- Never upload Terraform state files.
-- Keep AWS credentials secure.
-- Restrict SSH access to trusted IP addresses instead of allowing unrestricted access.
-
-## Cleanup
-
-To destroy the AWS resources created by this project, run:
+### Destroy Infrastructure
 
 ```bash
 terraform destroy
 ```
 
-Confirm the operation when prompted.
+Alternatively, trigger the **Terraform Destroy AWS Infrastructure** workflow manually from GitHub Actions.
+
+## Key Learnings
+
+- Infrastructure as Code using Terraform.
+- AWS infrastructure provisioning and networking.
+- Terraform provisioners and remote instance configuration.
+- Terraform remote state management using Amazon S3.
+- GitHub Actions CI/CD pipeline implementation.
+- AWS IAM roles and OIDC-based authentication.
+- Secure handling of SSH keys and GitHub Secrets.
+- Automated application deployment on AWS EC2.
+- Infrastructure lifecycle management using Terraform.
 
 ## Author
+
 **Irfan Ahmad**  
 DevOps Engineer
 
+- **Repository:** [Terraform Provisioners GitHub Actions](https://github.com/Irfan-devops1/terraform-provisioners-github-actions)
+
+- **GitHub:** [Irfan-devops1](https://github.com/Irfan-devops1)
+
 ---
-- **Project Repository:** [Terraform Provisioners Project](https://github.com/Irfan-devops1/terraform-provisioners-project)
 
-- **GitHub Profile:** [Irfan-devops1](https://github.com/Irfan-devops1)
-
-
-**Project:** Terraform Provisioners – AWS EC2 Flask Application Deployment
-
-
-
-## GitHub Actions CI/CD Test
-
-This project is automatically deployed using
-GitHub Actions, Terraform, and AWS OIDC.
-
-Workflow execution: Successful!
+*This project demonstrates practical implementation of Infrastructure as Code, AWS automation, secure CI/CD integration, and automated application deployment.*
