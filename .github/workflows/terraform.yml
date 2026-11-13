@@ -1,11 +1,14 @@
 
 name: Terraform AWS Deployment
 
+# Automatic deployment on push is temporarily disabled.
+# To enable automatic deployment again, uncomment the push section.
+
 on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
+  # push:
+  #   branches:
+  #     - main
+   workflow_dispatch:
 
 permissions:
   id-token: write
