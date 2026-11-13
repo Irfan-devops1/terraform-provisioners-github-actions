@@ -1,28 +1,17 @@
-
 # Terraform
 .terraform/
 *.tfstate
 *.tfstate.*
+*.tfvars
+*.tfvars.json
 crash.log
-crash.*.log
 
-# SSH private keys
+# SSH Keys
 pk-key
 pk-key.pub
+
+# Sensitive files
 *.pem
-*.key
 
-# Terraform variable files
-terraform.tfvars
-terraform.tfvars.json
-*.auto.tfvars
-*.auto.tfvars.json
-
-# Python
-__pycache__/
-*.pyc
-venv/
-.env
-
-# VS Code
-.vscode/
+# Terraform plans
+tfplan
